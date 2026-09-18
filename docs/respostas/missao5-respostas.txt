@@ -1,0 +1,56 @@
+EasyFood — Atividade 5 (Aula 5)
+================================
+
+Parte 11 — Cadastro de usuário
+------------------------------
+POST http://localhost:3000/auth/register
+Body: {"name":"Aluno","email":"aluno@easyfood.com","password":"123456"}
+
+Retornou 201. Resposta trouxe id, name e email. Senha não apareceu no JSON.
+
+
+Parte 12 — Login
+----------------
+POST http://localhost:3000/auth/login
+Body: {"email":"aluno@easyfood.com","password":"123456"}
+
+Retornou 200 com token JWT e dados do user (id, name, email).
+
+
+Parte 13 — /auth/me
+-------------------
+GET http://localhost:3000/auth/me sem header Authorization → 401.
+
+Mesma rota com Authorization: Bearer <token> → 200:
+{"message":"Você está autenticado!","user":{"id":1,"email":"aluno@easyfood.com"}}
+
+
+Parte 14 e 15 — POST /restaurants protegido
+-------------------------------------------
+POST http://localhost:3000/restaurants sem token → 401.
+
+Com Authorization: Bearer <token> e body:
+{"name":"Cantina Protegida","category":"Italiana","rating":4.6}
+→ 201 Created.
+
+GET http://localhost:3000/restaurants continua público (200 com a lista).
+
+
+Configuração usada
+------------------
+- dotenv carregado no server.js
+- JWT_SECRET no .env
+- Model User no Prisma com migration criar_tabela_users
+- Middleware authenticate em POST /restaurants e GET /auth/me
+
+
+Checklist Atividade 5
+---------------------
+[x] Usuário consegue se cadastrar
+[x] Senha armazenada como hash (bcrypt)
+[x] Usuário consegue fazer login
+[x] Login devolve JWT
+[x] /auth/me funciona apenas com token
+[x] GET /restaurants continua público
+[x] POST /restaurants retorna 401 sem token
+[x] POST /restaurants funciona com token válido

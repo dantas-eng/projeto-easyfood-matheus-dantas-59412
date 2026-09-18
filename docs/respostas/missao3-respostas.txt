@@ -1,0 +1,67 @@
+EasyFood — Missão 3 (Aula 3)
+================================
+
+Parte 6 — Teste de persistência
+--------------------------------
+Cadastrei restaurantes via POST, confirmei no GET, parei o servidor (Ctrl+C),
+iniciei de novo com npm start e refiz o GET. Os cadastros permaneceram no
+PostgreSQL. Persistência confirmada.
+
+
+Parte 7 — Prisma Studio
+-----------------------
+Comando: npx prisma studio
+Interface em http://localhost:5555
+Model Restaurant exibe os registros da tabela restaurants (id, name, category, rating).
+
+
+Parte 9 — Pense como arquiteto
+------------------------------
+
+Qual problema arquitetural resolvemos ao adicionar persistência?
+Os dados deixam de depender da memória do processo Node.js. Cadastros sobrevivem
+a reinício do servidor, deploy e queda da aplicação.
+
+Por que PostgreSQL faz sentido para a EasyFood neste momento?
+É relacional, combina com entidades como Restaurant, suporta consultas futuras
+(pedidos, usuários) e é padrão de mercado para evoluir de MVP para produção.
+
+Qual é a responsabilidade do Prisma?
+ORM entre Express e PostgreSQL: schema, migrations, queries tipadas
+(findMany, create) sem SQL manual na rota.
+
+O que acontece com a API se o banco ficar indisponível?
+GET e POST retornam HTTP 500 com mensagem genérica; o servidor pode falhar
+na inicialização se prisma.$connect() não conseguir conectar.
+
+Que vantagens ganhamos em relação ao array em memória?
+Dados duráveis, base para relacionamentos, integridade e consultas; várias
+requisições compartilham o mesmo estado persistido.
+
+Que nova complexidade foi adicionada?
+PostgreSQL instalado, .env com DATABASE_URL, migrations, seed, Prisma Client
+e dependência de serviço externo (banco rodando).
+
+Quais trade-offs surgiram com essa decisão?
+Mais setup e operação; falha do banco derruba a API; curva de aprendizado
+Prisma/migrations vs array simples.
+
+Nosso desenho arquitetural precisa ser atualizado?
+Sim. De Cliente → Express → Array para Cliente → Express → Prisma → PostgreSQL,
+registrado no ADR-002-persistencia-com-postgresql.md.
+
+
+Checklist Missão 3 (Aula 3)
+---------------------------
+[x] PostgreSQL instalado
+[x] Banco easyfood criado
+[x] Prisma instalado e inicializado
+[x] DATABASE_URL configurada (.env)
+[x] Model Restaurant criado
+[x] Migration executada
+[x] GET /restaurants consultando PostgreSQL
+[x] POST /restaurants salvando no PostgreSQL
+[x] Teste de reinicialização realizado
+[x] Prisma Studio documentado (npx prisma studio)
+[x] ADR-002-persistencia-com-postgresql.md criado
+[x] Respostas Parte 9 (este arquivo)

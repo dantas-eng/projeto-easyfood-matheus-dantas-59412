@@ -1,0 +1,125 @@
+EasyFood — Parte 3: cadastro de restaurantes
+==============================================
+
+O que precisaria mudar na aplicação?
+------------------------------------
+Antes a API só lia o array restaurants. Para cadastrar, ela precisa aceitar
+dados de entrada, validar, gerar um id e incluir o item na lista. O
+express.json() que já estava no projeto resolve a leitura do corpo da
+requisição; o que faltava era a rota de escrita.
+
+
+Precisaremos criar uma nova rota?
+---------------------------------
+Sim, mas no mesmo caminho /restaurants. A diferença fica no verbo HTTP:
+GET para listar, POST para criar. É o padrão REST mais comum para esse
+tipo de recurso.
+
+
+Que tipo de requisição poderia ser utilizada?
+-----------------------------------------------
+POST. GET não serve porque não cria nada e não deveria levar dados na URL.
+PUT e PATCH fazem mais sentido para atualizar algo que já existe.
+
+
+Quais informações um restaurante precisaria enviar?
+---------------------------------------------------
+name, category e rating. O id a API gera sozinha, para o cliente não
+escolher um número que já exista.
+
+
+Como essas informações chegariam até nossa API?
+-----------------------------------------------
+No corpo da requisição, em JSON, com header Content-Type: application/json.
+O middleware express.json() transforma esse texto em um objeto JavaScript
+acessível via req.body.
+
+
+Onde o novo restaurante seria armazenado?
+-----------------------------------------
+No mesmo array restaurants, em memória. Funciona bem para aprender e testar.
+Quando o servidor reinicia, tudo some. Em produção isso seria um problema.
+
+
+O desenho da arquitetura precisa mudar?
+---------------------------------------
+Para o escopo da aula, quase não. Continua sendo cliente → Express → array
+em memória. O fluxo ganha um caminho a mais: entrada de dados, validação,
+persistência (mesmo que temporária) e resposta.
+
+
+Algum componente novo seria necessário?
+---------------------------------------
+Só a rota POST e a lógica de validação/criação dentro dela. Nada de banco,
+fila ou serviço separado por enquanto.
+
+
+Algum conector novo seria necessário?
+-------------------------------------
+Não nesta versão. O "conector" é o próprio Express recebendo HTTP. Se no
+futuro os dados forem para um banco, aí sim entra um conector (driver do
+PostgreSQL, por exemplo).
+
+
+Alguma nova decisão arquitetural precisa ser tomada?
+----------------------------------------------------
+Sim. A principal: onde e como persistir os dados.
+
+
+Pensando como arquiteto
+=======================
+
+Qual problema estamos tentando resolver?
+----------------------------------------
+Restaurantes precisam entrar no sistema sem depender de alguém editar
+código ou reiniciar o servidor com dados fixos.
+
+
+Qual decisão você tomaria?
+--------------------------
+Manter persistência em memória (array) nesta fase, com rota POST /restaurants
+seguindo REST.
+
+
+Por que você tomaria essa decisão?
+----------------------------------
+O sistema ainda é pequeno, sem requisito de durabilidade. Implementar banco
+agora adiciona configuração, migrations e mais pontos de falha sem entregar
+valor imediato para o exercício. Dá para focar no fluxo HTTP e na separação
+entre leitura e escrita.
+
+
+Existe outra alternativa?
+-------------------------
+Salvar em arquivo JSON (fs.writeFile) ou ir direto para PostgreSQL/MongoDB.
+Também daria para criar rota tipo POST /register-restaurant, mas foge do
+padrão REST.
+
+
+Qual vantagem sua escolha traz?
+-------------------------------
+Implementação rápida, código fácil de ler, time entende o fluxo completo
+antes de complicar a infra.
+
+
+Qual desvantagem ou trade-off ela pode gerar?
+---------------------------------------------
+Dados voláteis. Reiniciou o servidor, perdeu os cadastros. Também não
+escala: várias instâncias do servidor teriam listas diferentes. Para
+produção real, teria que migrar para persistência externa.
+
+
+Implementação (desafio opcional)
+================================
+
+Rota criada: POST /restaurants
+
+Exemplo de teste:
+
+  node server.js
+
+  curl -X POST http://localhost:3000/restaurants \
+    -H "Content-Type: application/json" \
+    -d '{"name":"Taco Loco","category":"Mexicano","rating":4.3}'
+
+Resposta esperada: status 201 com o restaurante criado, incluindo o id gerado.

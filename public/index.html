@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EasyFood</title>
+  <style>
+    :root {
+      --ink: oklch(0.24 0.01 40);
+      --ink-muted: oklch(0.48 0.01 40);
+      --bg: oklch(0.99 0 0);
+      --line: oklch(0.90 0.004 40);
+      --accent: oklch(0.50 0.15 32);
+      --ok: oklch(0.45 0.11 150);
+      --erro: oklch(0.48 0.17 25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding: 28px 24px;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      color: var(--ink-muted);
+      font-size: 0.9rem;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 32px 24px 64px;
+    }
+
+    @media (min-width: 820px) {
+      main { grid-template-columns: 1.4fr 1fr; }
+    }
+
+    h2 {
+      margin: 0 0 4px;
+      font-size: 1.05rem;
+    }
+
+    .aviso {
+      margin: 0 0 16px;
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    li {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 2px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nome { font-weight: 600; }
+
+    .categoria {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+    }
+
+    .nota {
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    form { margin: 0; }
+
+    fieldset {
+      border: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    fieldset:disabled { opacity: 0.5; }
+
+    label {
+      display: block;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      margin-top: 4px;
+      padding: 9px 11px;
+      font: inherit;
+      font-size: 0.95rem;
+      color: var(--ink);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: var(--accent);
+    }
+
+    button {
+      padding: 9px 18px;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--bg);
+      background: var(--accent);
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(1.1); }
+    button:disabled { cursor: not-allowed; filter: grayscale(0.6); }
+
+    .recado {
+      margin: 12px 0 0;
+      font-size: 0.85rem;
+      min-height: 1.3em;
+    }
+
+    .recado[data-tipo="ok"] { color: var(--ok); }
+    .recado[data-tipo="erro"] { color: var(--erro); }
+
+    .sessao {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>EasyFood</h1>
+      <p>Catálogo de restaurantes</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section>
+      <h2>Restaurantes</h2>
+      <p class="aviso" id="status-lista">Carregando...</p>
+      <ul id="lista"></ul>
+    </section>
+
+    <aside>
+      <section>
+        <h2>Acesso</h2>
+        <p class="aviso" id="status-sessao">Entre para cadastrar restaurantes.</p>
+        <form id="form-login">
+          <fieldset id="campos-login">
+            <label>
+              E-mail
+              <input type="email" id="email" required autocomplete="email">
+            </label>
+            <label>
+              Senha
+              <input type="password" id="senha" required minlength="6" autocomplete="current-password">
+            </label>
+            <button type="submit">Entrar</button>
+          </fieldset>
+          <p class="recado" id="recado-login"></p>
+        </form>
+      </section>
+
+      <section class="sessao">
+        <h2>Novo restaurante</h2>
+        <p class="aviso">Requer autenticação.</p>
+        <form id="form-restaurante">
+          <fieldset id="campos-restaurante" disabled>
+            <label>
+              Nome
+              <input type="text" id="nome" required maxlength="150">
+            </label>
+            <label>
+              Categoria
+              <input type="text" id="categoria" required maxlength="100">
+            </label>
+            <label>
+              Nota (0 a 5)
+              <input type="number" id="nota" min="0" max="5" step="0.1">
+            </label>
+            <button type="submit">Cadastrar</button>
+          </fieldset>
+          <p class="recado" id="recado-restaurante"></p>
+        </form>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const el = (id) => document.getElementById(id);
+    let token = null;
+
+    function recado(id, texto, tipo) {
+      const alvo = el(id);
+      alvo.textContent = texto;
+      if (tipo) {
+        alvo.dataset.tipo = tipo;
+      } else {
+        delete alvo.dataset.tipo;
+      }
+    }
+
+    function formatarNota(nota) {
+      if (nota === null || nota === undefined || nota === "") return "sem nota";
+      return Number(nota).toFixed(1);
+    }
+
+    function montarLinha(restaurante) {
+      const linha = document.createElement("li");
+      const bloco = document.createElement("span");
+
+      const nome = document.createElement("span");
+      nome.className = "nome";
+      nome.textContent = restaurante.name;
+
+      const categoria = document.createElement("span");
+      categoria.className = "categoria";
+      categoria.textContent = restaurante.category || "sem categoria";
+
+      const nota = document.createElement("span");
+      nota.className = "nota";
+      nota.textContent = formatarNota(restaurante.rating);
+
+      bloco.append(nome, categoria);
+      linha.append(bloco, nota);
+      return linha;
+    }
+
+    async function carregarRestaurantes() {
+      try {
+        const resposta = await fetch("/restaurants");
+        if (!resposta.ok) throw new Error("status " + resposta.status);
+
+        const restaurantes = await resposta.json();
+        const lista = el("lista");
+        lista.replaceChildren(...restaurantes.map(montarLinha));
+
+        el("status-lista").textContent = restaurantes.length === 1
+          ? "1 restaurante cadastrado."
+          : `${restaurantes.length} restaurantes cadastrados.`;
+      } catch (erro) {
+        el("status-lista").textContent = "Não foi possível carregar a lista. Confira se o servidor está rodando.";
+      }
+    }
+
+    el("form-login").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      recado("recado-login", "");
+
+      try {
+        const resposta = await fetch("/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: el("email").value, password: el("senha").value })
+        });
+        const corpo = await resposta.json();
+
+        if (!resposta.ok) {
+          recado("recado-login", corpo.error || "Não foi possível entrar.", "erro");
+          return;
+        }
+
+        token = corpo.token;
+        el("campos-login").disabled = true;
+        el("campos-restaurante").disabled = false;
+        el("status-sessao").textContent = `Autenticado como ${corpo.user.email}.`;
+      } catch (erro) {
+        recado("recado-login", "Servidor indisponível.", "erro");
+      }
+    });
+
+    el("form-restaurante").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      recado("recado-restaurante", "");
+
+      const nota = el("nota").value;
+      const dados = {
+        name: el("nome").value,
+        category: el("categoria").value
+      };
+
+      if (nota !== "") {
+        dados.rating = Number(nota);
+      }
+
+      try {
+        const resposta = await fetch("/restaurants", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(dados)
+        });
+        const corpo = await resposta.json();
+
+        if (!resposta.ok) {
+          recado("recado-restaurante", corpo.error || "Não foi possível cadastrar.", "erro");
+          return;
+        }
+
+        el("form-restaurante").reset();
+        recado("recado-restaurante", `${corpo.name} cadastrado.`, "ok");
+        carregarRestaurantes();
+      } catch (erro) {
+        recado("recado-restaurante", "Servidor indisponível.", "erro");
+      }
+    });
+
+    carregarRestaurantes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "restaurants" ALTER COLUMN "name" SET DATA TYPE VARCHAR(150);
+ALTER TABLE "restaurants" ALTER COLUMN "category" DROP NOT NULL;
+ALTER TABLE "restaurants" ALTER COLUMN "category" SET DATA TYPE VARCHAR(100);
+ALTER TABLE "restaurants" ALTER COLUMN "rating" DROP NOT NULL;
+ALTER TABLE "restaurants" ALTER COLUMN "rating" SET DATA TYPE DECIMAL(2,1);

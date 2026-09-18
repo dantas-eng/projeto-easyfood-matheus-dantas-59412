@@ -1,0 +1,70 @@
+EasyFood — Sprint 03
+====================
+
+Parte 2 — Teste de reinicialização
+------------------------------------
+Com array em memória (antes do SQLite), cadastrei um restaurante via POST,
+confirmei no GET, parei o servidor com Ctrl+C e subi de novo. O cadastro
+sumiu. Isso bate com o ADR-001: push no array só vale enquanto o processo
+Node está vivo.
+
+Depois de conectar o PostgreSQL (Missão 3), repeti o teste. O restaurante continuou no GET
+após reiniciar. Persistência ok.
+
+
+Parte 4 — Evolução da arquitetura
+---------------------------------
+
+Qual banco de dados você escolheria?
+SQLite.
+
+Por que escolheria essa tecnologia?
+Porque resolve o problema de perder dados no restart sem pedir PostgreSQL
+instalado na máquina de todo mundo. É um arquivo local, SQL simples, e dá
+conta do MVP.
+
+O que precisaria mudar no server.js?
+Tirar o array fixo. Abrir conexão com o banco, criar a tabela se não existir,
+seed dos 3 restaurantes iniciais se estiver vazia. GET vira SELECT; POST vira
+INSERT e devolve a linha criada.
+
+Onde o restaurante seria salvo?
+Na tabela restaurants do arquivo easyfood.db, em data/easyfood.db.
+
+Como o GET /restaurants buscaria esses dados?
+SELECT * FROM restaurants ORDER BY id, retornando JSON.
+
+Como o POST /restaurants salvaria?
+INSERT com name, category, rating; id gerado pelo AUTOINCREMENT; resposta 201
+com o registro lido de volta.
+
+Precisaríamos instalar alguma nova dependência?
+Sim: better-sqlite3.
+
+Nossa arquitetura precisaria mudar?
+Sim. De API → array em memória para API → SQLite (arquivo local).
+
+O desenho arquitetural da EasyFood precisaria mudar?
+Sim. O diagrama passa a incluir camada de persistência entre as rotas e o
+armazenamento.
+
+Quais vantagens essa decisão traria?
+Dados sobrevivem a reinício; base para consultas e relacionamentos futuros;
+setup leve para aula.
+
+Quais novos problemas ou trade-offs ela poderia criar?
+SQLite não escala bem com várias instâncias escrevendo ao mesmo tempo;
+precisa pensar em backup do .db; dependência nativa pode dar trabalho em
+alguns ambientes.
+
+
+Checklist para a aula
+---------------------
+[x] GET /restaurants funcionando
+[x] POST /restaurants funcionando
+[x] ADR-001-armazenar-restaurantes-em-memoria.md criado
+[x] Teste de reinicialização realizado
+[x] Hipótese inicial (Sprint 03): SQLite; decisão final (Missão 3): PostgreSQL + Prisma
+[x] Justificativa registrada (sprint03-respostas.txt e ADR-002)
+[x] Banco conectado e funcionando
+[x] ADR-002 registrando a decisão

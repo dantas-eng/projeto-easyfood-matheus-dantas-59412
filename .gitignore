@@ -1,0 +1,18 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente
+.env
+
+# Diretório legado do SQLite
+data/
+
+# Material da disciplina (não faz parte do código)
+*.pdf
+
+# Configurações locais de editores
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store

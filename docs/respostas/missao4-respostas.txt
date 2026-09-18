@@ -1,0 +1,117 @@
+EasyFood — Missão 4 (Aula 4)
+================================
+
+Parte 10 — Teste da refatoração
+--------------------------------
+Testei com npm start (node server.js).
+GET http://localhost:3000/restaurants — listou os restaurantes do PostgreSQL.
+POST http://localhost:3000/restaurants com:
+  {"name":"Cantina da Nona","category":"Italiana","rating":4.7}
+Retornou 201 com o restaurante criado (id gerado).
+Confirmei o mesmo comportamento da Missão 3: mesmos endpoints, status e
+validações. Só mudou a organização interna do código.
+
+
+Parte 12 — Pense como arquiteto
+-------------------------------
+
+Por que não deixamos tudo dentro do server.js?
+Um arquivo único mistura config HTTP, rotas, validação, regras e banco.
+Conforme a API cresce, fica difícil ler, testar e alterar sem efeito colateral.
+
+Qual é a responsabilidade do server.js?
+Conectar ao banco (prisma.$connect) e ligar o servidor na porta 3000.
+Ponto de entrada do processo Node.
+
+Qual é a responsabilidade do app.js?
+Montar o Express: cors, json, static e rotas dos módulos. Não escuta porta.
+
+Qual é a responsabilidade das Routes?
+Mapear URL + método HTTP para a função certa do controller.
+Ex.: GET / e POST / em /restaurants.
+
+Qual é a responsabilidade do Controller?
+Traduzir HTTP em chamadas ao service: ler req.body, validar, definir status
+e JSON da resposta (400, 201, 500).
+
+Qual é a responsabilidade do Service?
+Regras e operações de domínio (listar e criar restaurantes) sem req/res.
+Chama o Prisma.
+
+Qual é a responsabilidade da camada Database?
+Expor o PrismaClient singleton (src/database/prisma.js) para o restante da app.
+
+Por que o Service não deveria depender de req e res?
+Para reutilizar a mesma lógica em CLI, job ou teste unitário sem simular HTTP.
+Separa domínio de transporte.
+
+Por que as Routes não acessam diretamente o Prisma?
+Para não espalhar ORM nas rotas. Controller valida HTTP; Service concentra regras;
+um lugar só para mudar consultas.
+
+O comportamento externo da API mudou?
+Não. Mesmos endpoints, status e mensagens de validação.
+
+Que vantagem essa organização traz quando o sistema crescer?
+Novos módulos (auth, pedidos) seguem o mesmo padrão. Arquivos menores,
+responsabilidades claras, testes mais fáceis por camada.
+
+Que nova complexidade essa organização adiciona?
+Mais arquivos e pastas, mais imports e precisa entender o fluxo entre camadas
+antes de debugar um bug.
+
+
+Parte 13 — Autenticação (pesquisa e decisão)
+--------------------------------------------
+
+Pesquisei três alternativas:
+- JWT: token stateless após login com email/senha (bcrypt + JWT_SECRET).
+- AWS Cognito: serviço gerenciado de usuários na AWS.
+- Login com Google: OAuth 2.0, identidade delegada ao Google.
+
+Solução escolhida: JWT com login próprio.
+
+Por quê?
+A EasyFood hoje é monólito Express + PostgreSQL local. JWT não exige serviço
+externo, combina com API REST e protege rotas com middleware simples.
+Cognito e Google OAuth adicionam configuração e dependências desproporcionais
+para o MVP da disciplina. Google pode entrar depois como provedor social.
+
+Na Aula 4 só planejei auth: estrutura em src/modules/auth/ e ADR-003.
+O login em si foi feito na Aula 5 (ver missao5-respostas.txt).
+
+
+Estrutura final (Missão 4)
+--------------------------
+easy-food/
+  server.js
+  src/
+    app.js
+    database/
+      prisma.js
+    modules/
+      restaurants/
+        restaurant.routes.js
+        restaurant.controller.js
+        restaurant.service.js
+      auth/
+        auth.routes.js
+        auth.controller.js
+        auth.service.js
+
+
+Checklist Missão 4 (Aula 4)
+---------------------------
+[x] Estrutura em camadas criada
+[x] database/prisma.js criado
+[x] restaurant.service.js criado
+[x] restaurant.controller.js criado
+[x] restaurant.routes.js criado
+[x] app.js criado
+[x] server.js simplificado (conexão Prisma + listen)
+[x] GET /restaurants funcionando
+[x] POST /restaurants funcionando
+[x] Módulo auth/ criado (planejado)
+[x] Pesquisa sobre autenticação realizada
+[x] Solução escolhida e justificada (ADR-003)
+[x] Login implementado (Aula 5)
