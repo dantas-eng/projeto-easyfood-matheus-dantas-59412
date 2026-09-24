@@ -16,3 +16,7 @@ data/
 
 # Sistema
 .DS_Store
+
+# Worktrees e rascunho local da execução
+.worktrees/
+.superpowers/
