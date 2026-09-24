@@ -22,6 +22,7 @@ async function create(req, res) {
       name,
       category,
       rating,
+      ownerEmail: req.user.email,
     });
     res.status(201).json(restaurant);
   } catch (error) {
