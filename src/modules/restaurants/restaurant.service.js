@@ -24,7 +24,7 @@ async function createRestaurant(
   try {
     await notify.sendWelcomeEmail({ to: ownerEmail, restaurantName: restaurant.name });
   } catch (error) {
-    logger.error(error.message);
+    logger.error("Falha no e-mail de boas-vindas:", error);
   }
 
   try {
@@ -33,7 +33,7 @@ async function createRestaurant(
       restaurantName: restaurant.name,
     });
   } catch (error) {
-    logger.error(error.message);
+    logger.error("Falha ao registrar atividade:", error);
   }
 
   try {
@@ -42,7 +42,7 @@ async function createRestaurant(
       restaurantName: restaurant.name,
     });
   } catch (error) {
-    logger.error(error.message);
+    logger.error("Falha ao notificar o comercial:", error);
   }
 
   return restaurant;

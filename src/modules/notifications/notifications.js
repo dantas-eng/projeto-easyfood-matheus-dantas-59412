@@ -44,6 +44,7 @@ async function sendWelcomeEmail({
       "Content-Type": "application/json",
     },
     body: JSON.stringify(buildWelcomeEmail({ to, restaurantName, from })),
+    signal: AbortSignal.timeout(5000),
   });
 
   if (!response.ok) {

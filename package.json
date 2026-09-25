@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "test": "node src/modules/notifications/notifications.check.js && node src/modules/restaurants/restaurant.create.check.js && node src/modules/restaurants/restaurant.controller.check.js"
   },
   "keywords": [
     "easyfood",

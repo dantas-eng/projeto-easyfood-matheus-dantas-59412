@@ -31,11 +31,13 @@ Copie o arquivo de exemplo das variáveis de ambiente e ajuste os valores:
 cp .env.example .env
 ```
 
-O `.env` precisa de duas entradas:
+O `.env` precisa destas entradas:
 
 ```
 DATABASE_URL="postgresql://usuario:senha@localhost:5432/easyfood"
 JWT_SECRET="uma-chave-longa-e-aleatoria"
+API_KEY="cole-a-chave-do-mailersend"
+MAIL_FROM="remetente-verificado@seudominio.com"
 ```
 
 Se o banco `easyfood` ainda não existir, há um script auxiliar que o cria no PostgreSQL local:
@@ -120,6 +122,7 @@ curl -X POST http://localhost:3000/restaurants \
 │   │   └── prisma.js        instância única do PrismaClient
 │   ├── modules/
 │   │   ├── auth/            cadastro, login e middleware de token
+│   │   ├── notifications/   e-mail de boas-vindas, atividade e comercial
 │   │   └── restaurants/     listagem e cadastro de restaurantes
 │   └── app.js               middlewares e registro das rotas
 └── server.js                carrega o .env, conecta ao banco e escuta a porta
