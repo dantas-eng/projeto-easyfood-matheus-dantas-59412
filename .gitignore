@@ -7,6 +7,10 @@ node_modules/
 # Diretório legado do SQLite
 data/
 
+# Imagens enviadas pelos usuários (a pasta é mantida pelo .gitkeep)
+uploads/dishes/*
+!uploads/dishes/.gitkeep
+
 # Material da disciplina (não faz parte do código)
 *.pdf
 

@@ -1,0 +1,52 @@
+EASYFOOD - ATIVIDADE 7: CARDAPIO E PROCESSAMENTO DE IMAGENS
+
+Antes de implementar
+- Um restaurante pode possuir varios pratos? Sim (relacao 1 para N).
+- Um prato precisa estar associado a um restaurante? Sim, restaurantId e obrigatorio.
+- Onde fica a responsabilidade? Em um novo modulo, src/modules/dishes, mantendo o monolito modular.
+- Podemos reutilizar a arquitetura? Sim: routes -> controller -> service -> Prisma, com o mesmo middleware JWT.
+
+Decisao arquitetural
+Processar as imagens dentro da propria API (Multer + Sharp). Detalhes em docs/adr/ADR-004-processamento-de-imagens.md.
+
+Endpoints
+- GET  /restaurants/:restaurantId/dishes   (publico)
+- POST /restaurants/:restaurantId/dishes   (JWT)
+- POST /dishes/:dishId/image               (JWT, multipart/form-data, campo "image")
+
+Comparacao das imagens (Parte 15)
+Preencha com os valores de uma imagem real depois de testar o upload.
+Formato e dimensoes: ls -l / "file" no arquivo original e em uploads/dishes/<arquivo>.webp.
+
+  Imagem original:   Formato:      Tamanho:      Dimensoes:
+  Imagem otimizada:  Formato: WebP Tamanho:      Dimensoes: largura maxima de 800 px
+
+1. A imagem otimizada ficou menor?
+   Em geral sim. Compare os tamanhos dos dois arquivos.
+2. Qual transformacao foi realizada?
+   Redimensionamento para no maximo 800 px de largura (sem ampliar imagens menores), correcao de orientacao e conversao para WebP com qualidade 80.
+3. Por que isso pode melhorar a experiencia do usuario?
+   Arquivos menores carregam mais rapido e consomem menos dados, principalmente em conexao movel.
+4. O arquivo sempre ficara menor?
+   Nao necessariamente. Depende da imagem original e da compressao; uma imagem pequena ou ja muito comprimida pode ate crescer.
+
+Teste de falha (Parte 16)
+- Arquivo que nao e imagem (ex.: .txt): 400 "Formato de imagem nao permitido".
+- Arquivo com tipo de imagem, mas conteudo invalido: 400 "Arquivo enviado nao e uma imagem valida".
+- Imagem acima de 5 MB: 413 "Imagem maior que o limite de 5 MB".
+- Requisicao sem arquivo: 400 "Nenhuma imagem enviada".
+A aplicacao nao encerra em nenhum desses casos.
+
+Se o prato ja foi cadastrado e a imagem falhar, devemos excluir o prato?
+Nao. O prato continua cadastrado sem imagem e o usuario pode tentar enviar o arquivo de novo. Uma falha em uma operacao secundaria nao invalida uma operacao principal concluida (mesmo principio do e-mail de boas-vindas).
+
+Checklist
+[x] Funcionalidades anteriores preservadas
+[x] Model Dish e relacionamento com Restaurant
+[x] Modulo dishes com routes, controller e service
+[x] Cadastro e consulta de pratos (cadastro exige JWT)
+[x] Multer recebe a imagem; Sharp otimiza; arquivo salvo em uploads/dishes
+[x] Caminho salvo em imageUrl e imagem acessivel em /uploads/dishes/<arquivo>.webp
+[x] Falhas no upload nao apagam o prato
+[x] ADR-004 criado
+[ ] Comparacao de tamanhos (preencher com a sua imagem)

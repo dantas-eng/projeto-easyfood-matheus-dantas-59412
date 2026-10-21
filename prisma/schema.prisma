@@ -12,8 +12,22 @@ model Restaurant {
   name     String   @db.VarChar(150)
   category String?  @db.VarChar(100)
   rating   Decimal? @db.Decimal(2, 1)
+  dishes   Dish[]
 
   @@map("restaurants")
+}
+
+model Dish {
+  id           Int     @id @default(autoincrement())
+  name         String  @db.VarChar(150)
+  description  String
+  price        Decimal @db.Decimal(10, 2)
+  imageUrl     String?
+  restaurantId Int
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@map("dishes")
 }
 
 model User {

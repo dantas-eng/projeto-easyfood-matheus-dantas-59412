@@ -1,6 +1,6 @@
 # EasyFood
 
-API REST para consulta e cadastro de restaurantes, com autenticação por JWT e uma interface web simples para consumir os endpoints.
+API REST para consulta e cadastro de restaurantes e dos pratos de cada cardápio (com upload de imagens otimizadas), com autenticação por JWT e uma interface web simples para consumir os endpoints.
 
 O projeto foi desenvolvido na disciplina de Software Architecture & Design Patterns da UniFECAF e evoluiu ao longo das aulas. Começou como um servidor Express com os dados em um array em memória, passou a persistir em PostgreSQL via Prisma, foi reorganizado em camadas e recebeu autenticação de usuários.
 
@@ -10,6 +10,7 @@ O projeto foi desenvolvido na disciplina de Software Architecture & Design Patte
 - PostgreSQL
 - Prisma ORM
 - jsonwebtoken e bcrypt
+- Multer e Sharp (upload e otimização de imagens)
 - HTML, CSS e JavaScript sem framework no front-end
 
 ## Pré-requisitos
@@ -46,7 +47,7 @@ Se o banco `easyfood` ainda não existir, há um script auxiliar que o cria no P
 ./scripts/setup-linux-postgres.sh
 ```
 
-Aplique as migrations e insira três restaurantes de exemplo:
+As imagens enviadas ficam em `uploads/dishes/`. Aplique as migrations e insira três restaurantes de exemplo:
 
 ```bash
 npx prisma migrate dev
@@ -70,6 +71,9 @@ A interface fica em `http://localhost:3000` e a API responde na mesma porta.
 | POST | `/auth/register` | não | Cria um usuário |
 | POST | `/auth/login` | não | Autentica e devolve o token |
 | GET | `/auth/me` | Bearer | Retorna os dados do usuário do token |
+| GET | `/restaurants/:restaurantId/dishes` | não | Lista o cardápio de um restaurante |
+| POST | `/restaurants/:restaurantId/dishes` | Bearer | Cadastra um prato (`name`, `description`, `price`) |
+| POST | `/dishes/:dishId/image` | Bearer | Envia a imagem do prato (multipart, campo `image`) |
 
 ### Exemplos
 
@@ -104,6 +108,16 @@ curl -X POST http://localhost:3000/restaurants \
   -d '{"name":"Cantina Roma","category":"Italiana","rating":4.5}'
 ```
 
+Enviar a imagem de um prato (JPEG, PNG ou WebP, até 5 MB). A API reduz para no máximo 800 px de largura, converte para WebP e devolve o prato com `imageUrl`:
+
+```bash
+curl -X POST http://localhost:3000/dishes/1/image \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -F "image=@foto.jpg"
+```
+
+Arquivo inválido ou ausente retorna 400, e acima do limite retorna 413. A imagem fica em `http://localhost:3000/uploads/dishes/<arquivo>.webp`.
+
 ## Estrutura do projeto
 
 ```
@@ -112,7 +126,7 @@ curl -X POST http://localhost:3000/restaurants \
 │   └── respostas/           respostas das atividades da disciplina
 ├── prisma/
 │   ├── migrations/          histórico de alterações do schema
-│   ├── schema.prisma        models Restaurant e User
+│   ├── schema.prisma        models Restaurant, Dish e User
 │   └── seed.js              dados iniciais
 ├── public/
 │   └── index.html           interface web
@@ -122,9 +136,11 @@ curl -X POST http://localhost:3000/restaurants \
 │   │   └── prisma.js        instância única do PrismaClient
 │   ├── modules/
 │   │   ├── auth/            cadastro, login e middleware de token
-│   │   ├── notifications/   e-mail de boas-vindas, atividade e comercial
-│   │   └── restaurants/     listagem e cadastro de restaurantes
+│   │   ├── dishes/          cardápio e upload da imagem dos pratos
+│   │   ├── restaurants/     listagem e cadastro de restaurantes
+│   │   └── shared/          e-mail, processamento de imagens e middleware de upload
 │   └── app.js               middlewares e registro das rotas
+├── uploads/dishes/          imagens otimizadas (não versionadas)
 └── server.js                carrega o .env, conecta ao banco e escuta a porta
 ```
 
@@ -156,6 +172,7 @@ As decisões tomadas durante o desenvolvimento estão registradas em `docs/adr`:
 - [ADR-002](docs/adr/ADR-002-escolha-do-banco-de-dados.md): adoção do SQLite para persistir os dados, substituída em seguida
 - [ADR-002](docs/adr/ADR-002-persistencia-com-postgresql.md): migração para PostgreSQL com Prisma
 - [ADR-003](docs/adr/ADR-003-estrategia-de-autenticacao.md): JWT com login próprio em vez de Cognito ou login social
+- [ADR-004](docs/adr/ADR-004-processamento-de-imagens.md): processar as imagens dentro da própria API
 
 ## Autor
 

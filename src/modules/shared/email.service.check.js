@@ -5,7 +5,7 @@ const {
   sendWelcomeEmail,
   registerActivity,
   notifyCommercial,
-} = require("./notifications");
+} = require("./email.service");
 
 const from = "remetente-verificado@seudominio.com";
 const body = buildWelcomeEmail({
@@ -88,7 +88,7 @@ async function main() {
     "Comercial: restaurante 3 (Cantina) cadastrado.",
   ]);
 
-  console.log("notifications.check ok");
+  console.log("email.service.check ok");
 }
 
 main().catch((error) => {

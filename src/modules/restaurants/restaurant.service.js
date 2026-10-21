@@ -1,5 +1,5 @@
 const prisma = require("../../database/prisma");
-const notifications = require("../notifications/notifications");
+const notifications = require("../shared/email.service");
 
 async function listRestaurants() {
   return prisma.restaurant.findMany({ orderBy: { id: "asc" } });
