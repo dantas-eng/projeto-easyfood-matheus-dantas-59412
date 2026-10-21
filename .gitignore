@@ -23,4 +23,7 @@ uploads/dishes/*
 
 # Worktrees e rascunho local da execução
 .worktrees/
+
+# Plugin superpowers
 .superpowers/
+docs/superpowers/
